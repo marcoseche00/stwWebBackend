@@ -1,4 +1,4 @@
 module.exports = {
     mongoURI:
-    `${process.env.MONGODB_URL}`
+    `mongodb+srv://spreadtheworddev:${process.env.MONGODB_KEY}@cluster0.ole5n.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
 }
