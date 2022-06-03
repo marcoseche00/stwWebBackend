@@ -9,7 +9,7 @@ const publications = require('./routes/api/publication');
 const news = require('./routes/api/news');
 
 app.use(express.static(path.join(__dirname, '../frontend/build')));
-const db = require('./config/keys').mongoURI;
+const db = require('./config/publicKeys').mongoURI;
 require('dotenv').config();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
