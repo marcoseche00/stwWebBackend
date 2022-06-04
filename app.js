@@ -14,7 +14,7 @@ require('dotenv').config();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 const cors = require('cors');
-app.use(cors({credentials: true, origin: 'http://localhost:3000' || 'https://629b612021f9990008ad2909--benevolent-conkies-3656c5.netlify.app'}))
+app.use(cors({credentials: true, origin: 'http://localhost:3000' || 'https://629b6ea9afe88300083e012d--benevolent-conkies-3656c5.netlify.app'}))
 mongoose.connect(db).then(() => console.log("MongoDB Connected")).catch(err => console.log(err));
 
 
