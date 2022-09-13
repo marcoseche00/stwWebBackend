@@ -14,10 +14,11 @@ const AuthorSchema = new Schema({
     info: {
         type: String,
         required: true
+    },
+    image: {
+        type: String,
+        required: true
     }
-
-    //TODO picture of author
-
 });
 
 module.exports = Author = mongoose.model("Author", AuthorSchema)

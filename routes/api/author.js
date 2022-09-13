@@ -13,6 +13,12 @@ router.get('/get-authors/:id', (req,res) => {
     
 });
 
+router.get('/get-all', (req,res) => {
+    console.log("getting all authors.....");
+    Author.find().then(Authors => res.json(Authors));
+});
+
+
 router.post('/create-new-author', async(req,res) => {
     
     
