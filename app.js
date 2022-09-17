@@ -9,13 +9,31 @@ const publications = require('./routes/api/publication');
 const news = require('./routes/api/news');
 
 app.use(express.static(path.join(__dirname, '../frontend/build')));
-const db = require('./config/publicKeys').mongoURI;
+const db = require('./config/keys').mongoURI;
 require('dotenv').config();
+
+const cors = require('cors');
+console.log("frontend URl is: ","localhost:3000");
+function setupCORS(req, res, next) {
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-type,Accept,X-Access-Token,X-Key');
+    res.header('Access-Control-Allow-Origin', '*');
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+    } else {
+        next();
+    }
+}
+
+
+app.all('/*',setupCORS);
+
+
+app.use(cors({credentials: true, origin:    "*"}))
+mongoose.connect(db).then(() => console.log("MongoDB Connected")).catch(err => console.log(err));
+
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
-const cors = require('cors');
-app.use(cors({credentials: true, origin:    `${process.env.FRONTEND_URL}`}))
-mongoose.connect(db).then(() => console.log("MongoDB Connected")).catch(err => console.log(err));
 
 
 //serving public file

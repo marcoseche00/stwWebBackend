@@ -7,23 +7,29 @@ const Publication = require('../../models/Publication');
 const Author = require('../../models/Author');
 
 router.get('/get-all', (req,res) => {
-    console.log("get all.....");
-    Publication.find().then(publications => res.json(publications));
+    console.log("publication/get-all...");
+    return Publication.find().then(publications => res.json(publications));
     
 });
 router.get('/get-first-five', (req,res) => {
-    console.log("get all.....");
-    Publication.find().limit(5).then(publications => res.json(publications));
+    console.log("publication/get-first-five...");
+    return Publication.find().limit(5).then(publications => res.json(publications));
     
 });
 router.get('/get-first-five-most-downloads', (req,res) => {
-    console.log("get all.....");
-    Publication.find().sort({"downloads":-1}).limit(5).then(publications => res.json(publications));
+    console.log("publication/get-first-five-most-downloaded...");
+    return Publication.find().sort({"downloads":-1}).limit(5).then(publications => res.json(publications));
     
 });
 router.get('/get/:id', (req,res) => {
-    console.log("get one.....");
-    Publication.find({_id:req.params.id}).then(publications => res.json(publications));
+    console.log("get...");
+    if (req.params.id){
+        Publication.find({_id:req.params.id}).then(publications => res.json(publications));
+    } else {
+        return res.status(400).send({
+            message: "error: id undefined"
+        });
+    }
     
 });
 
@@ -40,7 +46,6 @@ router.post('/get-books-query', async (req,res) => {
     const page_number = req.body.page_number
     const sort_by = req.body.sort_by;
     const sort_direction = req.body.sort_direction
-    console.log("book query: ", search);
 
     //get all the values from the publication, only get the first (50 books per page) * (page_number)*2
     const numBooks = 50 * page_number * 2;
@@ -51,68 +56,68 @@ router.post('/get-books-query', async (req,res) => {
     //make a new array, within some limit of the levenshtein distance if searh query != null
     //only add to the new array if greater than some threshhold
     var booksArrayWithDistance = [];
-    
-    for (i = 0; i< booksUnfiltered.length; i++ ){
-        const bookname = booksUnfiltered[i].title
-        console.log(bookname);
-        booksArrayWithDistance.push({
-            _id: booksUnfiltered[i]._id,
-            title:booksUnfiltered[i].title,
-            authorID: booksUnfiltered[i].authorID,
-            desc: booksUnfiltered[i].desc,
-            thumbnailLink: booksUnfiltered[i].thumbnailLink,
-            downloadLink: booksUnfiltered[i].downloadLink,
-            isbn: booksUnfiltered[i].isbn,
-            publicationDate: booksUnfiltered[i].publicationDate,
-            noPages: booksUnfiltered[i].noPages,
-            language: booksUnfiltered[i].language,
-            originalLanguage: booksUnfiltered[i].originalLanguage,
-            format: booksUnfiltered[i].format,
-            price: booksUnfiltered[i].price,
-            __v: booksUnfiltered[i].__v,
-            downloads: booksUnfiltered[i].downloads,
-            levenshtein: levenshtein.get(search,bookname),
-        })
+    if (search){
+        for (i = 0; i< booksUnfiltered.length; i++ ){
+            const bookname = booksUnfiltered[i].title
+            booksArrayWithDistance.push({
+                _id: booksUnfiltered[i]._id,
+                title:booksUnfiltered[i].title,
+                authorID: booksUnfiltered[i].authorID,
+                desc: booksUnfiltered[i].desc,
+                thumbnailLink: booksUnfiltered[i].thumbnailLink,
+                downloadLink: booksUnfiltered[i].downloadLink,
+                isbn: booksUnfiltered[i].isbn,
+                publicationDate: booksUnfiltered[i].publicationDate,
+                noPages: booksUnfiltered[i].noPages,
+                language: booksUnfiltered[i].language,
+                originalLanguage: booksUnfiltered[i].originalLanguage,
+                format: booksUnfiltered[i].format,
+                price: booksUnfiltered[i].price,
+                __v: booksUnfiltered[i].__v,
+                downloads: booksUnfiltered[i].downloads,
+                levenshtein: levenshtein.get(search,bookname),
+            })
+        }
     }
 
-    console.log("books filtered: ",booksArrayWithDistance)
-    if (search != null){
+    if (search){
            //sort by search
-           res.json(booksArrayWithDistance.sort((a, b) => (a.levenshtein > b.levenshtein) ? 1 : -1).slice(page_number-1,50*page_number));
-           return;
-    }
+           return res.json(booksArrayWithDistance.sort((a, b) => (a.levenshtein > b.levenshtein) ? 1 : -1).slice(page_number-1,50*page_number));     
+        }
 
     //if not searching then continue with old array
-    if (search === null){
+    else {
         if (sort_by === 'relevance'){
-            res.json(booksArrayWithDistance);
-            return;
+            return res.json(booksUnfiltered);
         }
         if (sort_by === 'upload_date'){
-            res.json(booksArrayWithDistance.sort((a, b) => (a.publicationDate > b.publicationDate) ? 1 : -1).slice(page_number-1,50*page_number));
-           return;
+            return res.json(booksUnfiltered.sort((a, b) => (a.publicationDate > b.publicationDate) ? 1 : -1).slice(page_number-1,50*page_number));
         }
         if (sort_by === 'price'){
-            res.json(booksArrayWithDistance.sort((a, b) => (a.price > b.price) ? 1 : -1).slice(page_number-1,50*page_number));
-           return;
+            return res.json(booksUnfiltered.sort((a, b) => (a.price > b.price) ? 1 : -1).slice(page_number-1,50*page_number));
+        }
+        else {
+            return res.json(booksUnfiltered);
         }
     }
-
-    
-
 });
 
 router.post('/increment-downloads',(req,res) => {
-    console.log("incrementing downloads: ",req.body.id);
-    Publication.findByIdAndUpdate({_id : req.body.id}, {$inc: {'downloads': 1}}).then(publications => {
-        console.log("new publication ",publications)
-        res.json(publications)}
-        );
+    console.log("publication/incrementing-downloads: ",req.body.id);
+    if (id) {
+        return Publication.findByIdAndUpdate({_id : req.body.id}, {$inc: {'downloads': 1}}).then(publications => {
+            res.json(publications)}
+            );
+    }else {
+        return res.status(400).send({
+            message: "error id undefined"
+        });
+    }
 })
 router.post('/create', async(req,res) => {
     
     
-    console.log("attempting to post new publication to db ... \n");
+    console.log("publication/create... ");
     //book and author info
     const title = "testbook7";
     const authorFirstName = "testAuthor7";
@@ -141,7 +146,7 @@ router.post('/create', async(req,res) => {
     //also check valid email adress
     if ((authorResp.length === 0)) {
         //create new author
-        console.log("author doesnt exist posting new author");
+        console.log("publication/create: author doesnt exist posting new author");
 
         const newAuthor = new Author({
             firstName: authorFirstName,
@@ -154,12 +159,9 @@ router.post('/create', async(req,res) => {
 
 
         //get the id
-        const authorResp = await Author.find({firstName: authorFirstName, otherNames: authorOtherName}).limit(1);
-        console.log(authorResp);
-     
+        const authorResp = await Author.find({firstName: authorFirstName, otherNames: authorOtherName}).limit(1); 
 
         const authorID = authorResp[0]._id
-        console.log("id: ",authorResp[0]._id);
         
         //create new book
         const newPublication = new Publication({
@@ -180,15 +182,11 @@ router.post('/create', async(req,res) => {
         });
         console.log("1");
 
-        await newPublication.save().then(publications => res.json(publications));
-        console.log("2");
-        console.log("posted..\n");
-
-        
+        return newPublication.save().then(publications => res.json(publications));
     }
     else{
         //check if book already exists 
-        console.log("author exists posting new book with author id");
+        console.log("publication/create: author exists posting new book with author id");
         const publicationResp = await Publication.find({title: title}).limit(1);
         if (publicationResp.length === 0){
 
@@ -212,18 +210,16 @@ router.post('/create', async(req,res) => {
     
             });
 
-            await newPublication.save().then(publications => res.json(publications));
-
-            console.log("posted..\n");
-
-            
+            return newPublication.save().then(publications => res.json(publications));
 
         }else{
-            //book already exists
-            console.log("book already exists under this author");
+            console.log("bookname already exists under this author");
+            return res.status(400).send({
+                message: "bookname already exists under this author"
+            });
         }
     }
-    res.send().end();
+
 }); 
 
 module.exports = router;

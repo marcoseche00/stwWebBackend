@@ -7,25 +7,33 @@ const News = require('../../models/News');
 
 
 router.get('/get-all', (req,res) => {
-    console.log("get all.....");
-    News.find().then(Newss => res.json(Newss));
+    console.log("news/get-all...");
+    return News.find().then(Newss => res.json(Newss));
     
 });
 router.get('/get-first-five', (req,res) => {
-    console.log("get all.....");
-    News.find().limit(5).then(Newss => res.json(Newss));
+    console.log("news/get-first-five...");
+    return News.find().limit(5).then(Newss => res.json(Newss));
     
 });
 
 router.get('/get/:id', (req,res) => {
-    console.log("get one.....");
-    News.find({_id:req.params.id}).then(News => res.json(Newss));
+    console.log("news/get...");
+    if (req.params.id){
+        return News.find({_id:req.params.id}).then(News => res.json(Newss));
+    }else {
+        return res.status(400).send({
+            message: "error news id undefined"
+        });
+    }
     
 });
 
 
-router.post('/create', async(req,res) => {
-    console.log("create news")
+router.post('/create', (req,res) => {
+    console.log("news/create...")
+
+    //news Data manually set atm
     const title = "test5";
     const imagePath = "/files/authors/thumbnails/placeholder.jpeg";
     const date = "22 May 2022"
@@ -41,7 +49,7 @@ router.post('/create', async(req,res) => {
     });
 
 
-    await newNews.save().then(newss => res.json(newss));
+    return newNews.save().then(newss => res.json(newss));
     
 }); 
 
