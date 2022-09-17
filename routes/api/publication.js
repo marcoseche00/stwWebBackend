@@ -41,7 +41,7 @@ router.get('/get/:id', (req,res) => {
 var levenshtein = require('fast-levenshtein');
 
 router.post('/get-books-query', async (req,res) => {
-    
+    console.log("publication/get-book-query...")
     const search = req.body.search_query;
     const page_number = req.body.page_number
     const sort_by = req.body.sort_by;
