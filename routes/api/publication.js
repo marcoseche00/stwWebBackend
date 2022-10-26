@@ -104,7 +104,7 @@ router.post('/get-books-query', async (req,res) => {
 
 router.post('/increment-downloads',(req,res) => {
     console.log("publication/incrementing-downloads: ",req.body.id);
-    if (id) {
+    if (req.body.id) {
         return Publication.findByIdAndUpdate({_id : req.body.id}, {$inc: {'downloads': 1}}).then(publications => {
             res.json(publications)}
             );
@@ -119,50 +119,26 @@ router.post('/create', async(req,res) => {
     
     console.log("publication/create... ");
     //book and author info
-    const title = "testbook7";
-    const authorFirstName = "testAuthor7";
-    const authorOtherName = "testAuthorSecondName7";
-    const authorInfo = "this is author info7: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer consequat faucibus ex in sollicitudin. Vestibulum bibendum iaculis est ut suscipit. Phasellus nisl odio, tincidunt ac mattis in, fringilla et nisi. Pellentesque aliquam, leo eget sodales imperdiet, mi libero aliquam enim, sit amet molestie justo metus et sapien. Proin scelerisque nec leo vitae tristique. Pellentesque sodales nisi imperdiet, semper metus eu, tempus nisl. Maecenas orci turpis, porta et nisl id, vestibulum aliquam justo. Nullam tempor luctus lectus non hendrerit. Curabitur id nulla aliquam, sodales nulla in, maximus neque. Sed vitae efficitur ex, sit amet ornare orci. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in ex ut nulla semper molestie eget ut est. Aenean eget massa nec lorem consectetur rhoncus vel ut nunc."
-    const imageLink = "/files/authors/thumbnails/placeholder.jpeg"
-    const description = "this is description7:Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer consequat faucibus ex in sollicitudin. Vestibulum bibendum iaculis est ut suscipit. Phasellus nisl odio, tincidunt ac mattis in, fringilla et nisi. Pellentesque aliquam, leo eget sodales imperdiet, mi libero aliquam enim, sit amet molestie justo metus et sapien. Proin scelerisque nec leo vitae tristique. Pellentesque sodales nisi imperdiet, semper metus eu, tempus nisl. Maecenas orci turpis, porta et nisl id, vestibulum aliquam justo. Nullam tempor luctus lectus non hendrerit. Curabitur id nulla aliquam, sodales nulla in, maximus neque. Sed vitae efficitur ex, sit amet ornare orci. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in ex ut nulla semper molestie eget ut est. Aenean eget massa nec lorem consectetur rhoncus vel ut nunc.";
-
-    const thumbnailLink = "/";
-    const downloadLink = "/";
-    const isbn =  "this is the isbn";
-    const publicationDate= "01/01/2022";
-    const noPages = 100;
-    const language = "english";
-    const originalLanguage = "english";
-    const format = "pdf";
-    const price = 0;
+    const title = req.body.title
+    const authorID = "6345f84e7a755ff0bc8717e1"
+    const description = req.body.desc
+    const thumbnailLink = req.body.thumbnailLink
+    const downloadLink = req.body.downloadLink
+    const isbn =  req.body.isbn
+    const publicationDate= req.body.publicationDate
+    const noPages = req.body.noPages
+    const language = req.body.language
+    const originalLanguage = req.body.originalLanguage
+    const format = req.body.format
+    const price = req.body.price
     const downloads = 0
 
 
-    //if author exists then add book and author id 
-    //esle create new author post then add book and author id
-    //look for author 
+    
+    
+    const publicationResp = await Publication.find({title: title}).limit(1);
+    if (publicationResp.length === 0){
 
-    const authorResp = await Author.find({firstName: authorFirstName, otherNames: authorOtherName}).limit(1);
-    //also check valid email adress
-    if ((authorResp.length === 0)) {
-        //create new author
-        console.log("publication/create: author doesnt exist posting new author");
-
-        const newAuthor = new Author({
-            firstName: authorFirstName,
-            otherNames: authorOtherName,
-            info: authorInfo,
-            image: imageLink
-        });
-
-        await newAuthor.save();
-
-
-        //get the id
-        const authorResp = await Author.find({firstName: authorFirstName, otherNames: authorOtherName}).limit(1); 
-
-        const authorID = authorResp[0]._id
-        
         //create new book
         const newPublication = new Publication({
             title:title,
@@ -177,49 +153,144 @@ router.post('/create', async(req,res) => {
             originalLanguage:originalLanguage,
             format:format,
             price:price,
-            downloads: 0,
-   
+            downloads: 0
+
         });
-        console.log("1");
 
         return newPublication.save().then(publications => res.json(publications));
-    }
-    else{
-        //check if book already exists 
-        console.log("publication/create: author exists posting new book with author id");
-        const publicationResp = await Publication.find({title: title}).limit(1);
-        if (publicationResp.length === 0){
 
-            //get author id
-            console.log(authorResp);
-            const authorID = authorResp[0]._id;
-            //create new book
-            const newPublication = new Publication({
-                title:title,
-                authorID: authorID,
-                desc: description,
-                thumbnailLink: thumbnailLink,
-                downloadLink: downloadLink,
-                isbn: isbn,
-                publicationDate: publicationDate,
-                noPages:noPages,
-                language:language,
-                originalLanguage:originalLanguage,
-                format:format,
-                price:price,
-    
-            });
-
-            return newPublication.save().then(publications => res.json(publications));
-
-        }else{
-            console.log("bookname already exists under this author");
-            return res.status(400).send({
-                message: "bookname already exists under this author"
-            });
-        }
+    }else{
+        console.log("bookname already exists under this author");
+        return res.status(400).send({
+            message: "bookname already exists under this author"
+        });
     }
 
 }); 
+
+
+//route to delete 
+var fs = require('fs');
+
+router.post('/delete',async(req,res) => {
+     //delete thumbnail 
+     fs.stat(req.body.thumbnail_path, function (err, stats) {
+        console.log(stats);//here we got all information of file in stats variable
+     
+        if (err) {
+            return console.error(err);
+        }
+     
+        fs.unlink(req.body.thumbnail_path,function(err){
+             if(err) return console.log(err);
+             console.log('file deleted successfully');
+        });  
+     })
+
+     //delete book
+     fs.stat(req.body.book_path, function (err, stats) {
+        console.log(stats);//here we got all information of file in stats variable
+     
+        if (err) {
+            return console.error(err);
+        }
+     
+        fs.unlink(req.body.book_path,function(err){
+             if(err) return console.log(err);
+             console.log('file deleted successfully');
+        });  
+     })
+
+
+    //delete record
+
+    Publication.findByIdAndDelete(req.body.id, (err, docs) => {
+        if (err){
+            console.log(err)
+        }
+        else{
+            console.log("Deleted : ", docs);
+            res.status(200).send();
+        }
+    });
+})
+
+//route to upload
+const multer = require('multer');
+
+const storageThumbnail = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'files/publications/thumbnails');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname )    }
+});
+const storageBook = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'files/publications/PDF');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname )    }
+});
+
+const filefilterImage = (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' 
+        || file.mimetype === 'image/jpeg'){
+            cb(null, true);
+        }else {
+            cb(null, false);
+        }
+}
+const filefilterBook = (req, file, cb) => {
+    if (file.mimetype === 'application/pdf'){
+            cb(null, true);
+        }else {
+            cb(null, false);
+        }
+}
+
+const uploadThumbnail = multer({storage: storageThumbnail, fileFilter: filefilterImage});
+const uploadBook = multer({storage: storageBook, fileFilter: filefilterBook});
+const SingleFile = require('../../models/singlefile');
+
+const fileSizeFormatter = (bytes, decimal) => {
+    if(bytes === 0){
+        return '0 Bytes';
+    }
+    const dm = decimal || 2;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'YB', 'ZB'];
+    const index = Math.floor(Math.log(bytes) / Math.log(1000));
+    return parseFloat((bytes / Math.pow(1000, index)).toFixed(dm)) + ' ' + sizes[index];
+
+}
+
+const singleFileUpload = async (req, res, next) => {
+    console.log("publication/upload-*: Uploading file ... ")
+    try{
+        console.log("file: ", req.file)
+        const file = new SingleFile({
+            fileName: req.file.originalname,
+            filePath: req.file.path,
+            fileType: req.file.mimetype,
+            fileSize: fileSizeFormatter(req.file.size, 2) // 0.00
+        });
+
+        await file.save().then(fileName => {
+            console.log("filename: ",fileName ) ;
+            res.status(201).send(fileName);
+        });
+
+    }catch(error) {
+        console.log("error uploading item")
+        res.status(400).send(error.message);
+    }
+}
+
+
+router.post('/upload-image', uploadThumbnail.single("file") , singleFileUpload);
+
+router.post('/upload-book', uploadBook.single("file") , singleFileUpload);
+
+
 
 module.exports = router;

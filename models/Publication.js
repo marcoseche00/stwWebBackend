@@ -5,13 +5,18 @@ const Schema = mongoose.Schema;
 const PublicationSchema = new Schema({
 
     //main infomation
+    _id: {
+        type: ObjectId,
+        required: true,
+
+    },
     title: {
         type: String,
         required: true
     },
     authorID: {
         type: ObjectId,
-        required: true
+        required: false
     },
     desc: {
         type: String,
