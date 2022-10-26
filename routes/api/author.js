@@ -7,10 +7,11 @@ const Author = require('../../models/Author');
 const Publication = require('../../models/Publication');
 
 router.get('/get-authors/:id', (req,res) => {
-    console.log("author/get-authors...");
-    if (req.params.id){
+    console.log("author/get-authors... id = ", req.params.id , !req.params.id);
+    if (req.params.id && req.params.id != "undefined" ){
         return Author.find({_id:req.params.id}).then(authors =>  res.json(authors));
     } else {
+        console.log("error authorID undefined");
         return res.status(400).send({
             message: "id undefined"
         });
