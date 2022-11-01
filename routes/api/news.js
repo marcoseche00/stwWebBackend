@@ -4,7 +4,7 @@ const validator = require("email-validator");
 
 
 const News = require('../../models/News');
-
+const mongoose = require('mongoose');
 
 router.get('/get-all', (req,res) => {
     console.log("news/get-all...");
@@ -19,7 +19,7 @@ router.get('/get-first-five', (req,res) => {
 
 router.get('/get/:id', (req,res) => {
     console.log("news/get...");
-    if (req.params.id){
+    if (req.params.id  && mongoose.Types.ObjectId.isValid(req.params.id)){
         return News.find({_id:req.params.id}).then(News => res.json(Newss));
     }else {
         return res.status(400).send({

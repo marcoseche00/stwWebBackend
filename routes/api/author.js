@@ -5,10 +5,11 @@ const validator = require("email-validator");
 
 const Author = require('../../models/Author');
 const Publication = require('../../models/Publication');
+const mongoose = require('mongoose');
 
 router.get('/get-authors/:id', (req,res) => {
     console.log("author/get-authors... id = ", req.params.id , !req.params.id);
-    if (req.params.id && req.params.id != "undefined" ){
+    if (req.params.id && mongoose.Types.ObjectId.isValid(req.params.id) ){
         return Author.find({_id:req.params.id}).then(authors =>  res.json(authors));
     } else {
         console.log("error authorID undefined");

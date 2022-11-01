@@ -5,25 +5,50 @@ const validator = require("email-validator");
 
 const Publication = require('../../models/Publication');
 const Author = require('../../models/Author');
+const mongoose = require('mongoose');
 
 router.get('/get-all', (req,res) => {
     console.log("publication/get-all...");
-    return Publication.find().then(publications => res.json(publications));
+    return Publication.find().then((error, publications) =>{
+         if (publications) {    
+            res.json(publications)
+        } else {
+            res.status(400).send({
+                message: "error"
+            });
+        }
+    });
     
 });
 router.get('/get-first-five', (req,res) => {
     console.log("publication/get-first-five...");
-    return Publication.find().limit(5).then(publications => res.json(publications));
+    return Publication.find().limit(5).then(publications => (error, publications) => {
+        if (publications) {    
+           res.json(publications)
+       } else {
+           res.status(400).send({
+               message: "error"
+           });
+       }
+   });
     
 });
 router.get('/get-first-five-most-downloads', (req,res) => {
     console.log("publication/get-first-five-most-downloaded...");
-    return Publication.find().sort({"downloads":-1}).limit(5).then(publications => res.json(publications));
+    return Publication.find().sort({"downloads":-1}).limit(5).then(publications => (error, publications) =>{
+        if (publications) {    
+           res.json(publications)
+       } else {
+           res.status(400).send({
+               message: "error"
+           });
+       }
+   });
     
 });
 router.get('/get/:id', (req,res) => {
     console.log("get...");
-    if (req.params.id){
+    if (req.params.id && mongoose.Types.ObjectId.isValid(req.params.id)){
         Publication.find({_id:req.params.id}).then(publications => res.json(publications));
     } else {
         return res.status(400).send({
@@ -104,10 +129,16 @@ router.post('/get-books-query', async (req,res) => {
 
 router.post('/increment-downloads',(req,res) => {
     console.log("publication/incrementing-downloads: ",req.body.id);
-    if (req.body.id) {
-        return Publication.findByIdAndUpdate({_id : req.body.id}, {$inc: {'downloads': 1}}).then(publications => {
-            res.json(publications)}
-            );
+    if (req.body.id && mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return Publication.findByIdAndUpdate({_id : req.body.id}, {$inc: {'downloads': 1}}).then((error, publications) => {
+            if (publications){
+                res.json(publications)
+            } else {
+                res.status(400).send({
+                    message: "error: id undefined"
+                });
+            }
+        });
     }else {
         return res.status(400).send({
             message: "error id undefined"
