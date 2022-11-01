@@ -29,7 +29,7 @@ function setupCORS(req, res, next) {
 app.all('/*',setupCORS);
 
 
-app.use(cors({credentials: true, origin:    `${process.env.FRONTEND_URL}`}))
+app.use(cors({credentials: true, origin:    "*"}))
 mongoose.connect(db).then(() => console.log("MongoDB Connected")).catch(err => console.log(err));
 
 app.use(bodyParser.urlencoded({extended:true}));
