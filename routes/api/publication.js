@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 
 router.get('/get-all', (req,res) => {
     console.log("publication/get-all...");
-    return Publication.find().then((error, publications) =>{
+    return Publication.find().then((publications, error) =>{
          if (publications) {    
             res.json(publications)
         } else {
@@ -22,7 +22,7 @@ router.get('/get-all', (req,res) => {
 });
 router.get('/get-first-five', (req,res) => {
     console.log("publication/get-first-five...");
-    return Publication.find().limit(5).then(publications => (error, publications) => {
+    return Publication.find().limit(5).then(publications => (publications, error) => {
         if (publications) {    
            res.json(publications)
        } else {
@@ -35,7 +35,7 @@ router.get('/get-first-five', (req,res) => {
 });
 router.get('/get-first-five-most-downloads', (req,res) => {
     console.log("publication/get-first-five-most-downloaded...");
-    return Publication.find().sort({"downloads":-1}).limit(5).then(publications => (error, publications) =>{
+    return Publication.find().sort({"downloads":-1}).limit(5).then(publications => (publications, error) =>{
         if (publications) {    
            res.json(publications)
        } else {
@@ -128,20 +128,22 @@ router.post('/get-books-query', async (req,res) => {
 });
 
 router.post('/increment-downloads',(req,res) => {
-    console.log("publication/incrementing-downloads: ",req.body.id);
-    if (req.body.id && mongoose.Types.ObjectId.isValid(req.params.id)) {
-        return Publication.findByIdAndUpdate({_id : req.body.id}, {$inc: {'downloads': 1}}).then((error, publications) => {
+    console.log("publication/incrementing-downloads: ",req.body.id," : ", mongoose.Types.ObjectId.isValid(req.body.id));
+    if (req.body.id && mongoose.Types.ObjectId.isValid(req.body.id)) {
+        return Publication.findByIdAndUpdate({_id : req.body.id}, {$inc: {'downloads': 1}}).then((publications, error) => {
+            console.log(error);
+            console.log(publications);
             if (publications){
-                res.json(publications)
+                return (res.json(publications).send());
             } else {
                 res.status(400).send({
-                    message: "error: id undefined"
+                    message: "error: id undefined: find_by_id"
                 });
             }
         });
     }else {
         return res.status(400).send({
-            message: "error id undefined"
+            message: "error id undefined: isValid"
         });
     }
 })
