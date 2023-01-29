@@ -40,6 +40,10 @@ router.post('/create-new-email-subscription/:user_email', async(req,res) => {
 
 const { spawn } = require('child_process');
 
+var nodeMailer = require('nodemailer');
+
+
+
 router.post('/contact-us', async(req,res) => {
     console.log("contact us...")
     var user_email = req.body.email.toLowerCase();
@@ -52,20 +56,33 @@ router.post('/contact-us', async(req,res) => {
         });
     }
 
-    // run a python script to send the email
+    // send the email
  
-    const pyProg = spawn('python', ['../stwWebBackend/scripts/contactUsEmail.py', user_name, user_email, user_message]);
-
-    pyProg.stdout.on('data', function (data) {
-        console.log('Pipe data from python script ...', data.toString());
-        dataToSend = data.toString();
+  
+    var transporter = nodeMailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'niyamabo@gmail.com',
+            pass: 'gswvctxlzhbrcdzg'
+        }
     });
-    res.status(200).send("hey");
 
-    pyProg.on('close', (code) => {
-        console.log(`child process close all stdio with code ${code}`);
-        // send data to browser
-    });
+    var mailOptions = {
+        from: 'niyamabo@gmail.com',
+        to: 'niyamabo@gmail.com',
+        subject: 'Spread the Word: Contact Us',
+        html: ' <p>name: ' + user_name +  '</p> <p>email: '+ user_email +  '<p>message: '+user_message +  '</p>'
+    }
+
+    res.status(200).send();
+
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
 
 
 });
