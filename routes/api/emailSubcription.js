@@ -69,7 +69,7 @@ router.post('/contact-us', async(req,res) => {
 
     var mailOptions = {
         from: 'niyamabo@gmail.com',
-        to: 'niyamabo@gmail.com',
+        to: 'spreadthewordeditorial@gmail.com',
         subject: 'Spread the Word: Contact Us',
         html: ' <p>name: ' + user_name +  '</p> <p>email: '+ user_email +  '<p>message: '+user_message +  '</p>'
     }
