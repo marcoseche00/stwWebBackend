@@ -6,7 +6,7 @@ const validator = require("email-validator");
 const EmailSubscription = require('../../models/EmailSubscription');
 
 
-router.get('/get-email-subcriptions', (req,res) => {
+router.get('/get-email-subscriptions', (req,res) => {
     console.log("emailSubscription/get-email-subscriptions... ");
     return EmailSubscription.find().then(emailSubscriptions => res.json(emailSubscriptions));
 });
@@ -69,8 +69,8 @@ router.post('/contact-us', async(req,res) => {
 
     var mailOptions = {
         from: 'niyamabo@gmail.com',
-        to: 'spreadthewordeditorial@gmail.com',
-        subject: 'Spread the Word: Contact Us',
+        to: 'librarycatseditorial@gmail.com',
+        subject: 'Library Cats Editorial: Contact Us',
         html: ' <p>name: ' + user_name +  '</p> <p>email: '+ user_email +  '<p>message: '+user_message +  '</p>'
     }
 
