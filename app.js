@@ -8,6 +8,7 @@ const authors = require('./routes/api/author');
 const publications = require('./routes/api/publication');
 const news = require('./routes/api/news');
 
+
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 const db = require('./config/publicKeys').mongoURI;
 require('dotenv').config();
@@ -42,6 +43,7 @@ app.use(express.static(__dirname));
 app.use('/files', express.static(path.join(__dirname, 'files')));
 app.use('/files/publications/thumbnails', express.static(path.join(__dirname, 'files','publications','thumbnails')));
 app.use('/files/publications/PDF', express.static(path.join(__dirname, 'files','publications','PDF')));
+app.use('/files/policies/', express.static(path.join(__dirname, 'files','policies')));
 app.use('/files/public', express.static(path.join(__dirname, 'files','public')));
 
 
